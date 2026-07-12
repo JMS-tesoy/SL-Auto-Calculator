@@ -6,7 +6,7 @@
   "build": {
     "frontendDist": "../dist",
     "devUrl": "http://localhost:1420",
-    "beforeDevCommand": "npx http-server dist -p 1420 --cors -c-1"
+    "beforeDevCommand": "pnpm exec http-server dist -p 1420 --cors -c-1"
   },
   "app": {
     "windows": [
