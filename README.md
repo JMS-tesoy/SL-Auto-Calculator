@@ -37,12 +37,18 @@ A professional desktop position size calculator for OKX perpetual futures tradin
 # Install dependencies
 npm install
 
-# Run in development mode
-npm run tauri dev
+# Run in Tauri desktop debug mode
+npm run dev
+
+# Or run in browser only (no Tauri/Rust backend)
+npm run dev:web
 
 # Build for production
-npm run tauri build
+npm run build
 ```
+
+> **Note:** This project uses **npm**, not pnpm. The correct command is `npm run dev` (not `pnpm run tauri dev`).
+> `npm run dev` executes the `"dev"` script in `package.json` which runs `tauri dev`.
 
 ## Project Structure
 
