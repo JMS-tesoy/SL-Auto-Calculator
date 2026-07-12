@@ -4,6 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "dev": "tauri dev",
+    "dev:web": "npx http-server dist -p 1420 --cors -c-1 -o",
+    "build": "tauri build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
