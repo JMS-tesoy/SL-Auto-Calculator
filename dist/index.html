@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Position Size Calculator for OKX</title>
+<style>
+/* ══════════════════════════════════════════════════════════════
+   DESIGN SYSTEM — Position Calculator for OKX
+   Professional dark theme, single-view grid, no scroll
+   ══════════════════════════════════════════════════════════════ */
+:root {
+  /* Palette */
+  --bg:        #0b0f0e;
+  --surface:   #131917;
+  --surface2:  #1a211e;
+  --border:    #26332e;
+  --text:      #e4ece7;
+  --text-muted:#8a9b93;
+  --teal:      #22b38b;
+  --teal-dim:  #153a2e;
+  --gold:      #d4aa2c;
+  --gold-dim:  #2e2610;
+  --rose:      #e05362;
+  --rose-dim:  #3d1820;
+  /* Typography */
+  --mono: ui-monospace, "SF Mono", "JetBrains Mono", "Consolas", "Fira Code", "IBM Plex Mono", monospace;
+  --sans: "Inter", -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  /* Layout */
+  --radius: 8px;
+  --radius-sm: 5px;
+}
+
+/* ─── Reset ─────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; }
+html, body {
+  height: 100vh; overflow: hidden;
+  background: var(--bg); color: var(--text);
+  font-family: var(--sans); font-size: 13px; line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── Main Grid ─────────────────────────── */
+.app {
+  display: grid;
+  grid-template-columns: 418px 1fr;
+  grid-template-rows: auto 1fr;
+  gap: 10px;
+  height: 100vh;
+  padding: 10px 12px;
+}
+
+/* ─── Header ────────────────────────────── */
+.header-row {
+  grid-column: 1 / -1;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 4px 8px 4px;
+  border-bottom: 1px solid var(--border);
+}
+.header-row h1 {
+  font-size: 14px; font-weight: 700; letter-spacing: 0.06em;
+  text-transform: uppercase; display: flex; align-items: center; gap: 10px;
+}
+.header-row h1 .badge {
+  font-size: 10px; font-weight: 600;
+  background: var(--teal-dim); color: var(--teal);
+  padding: 3px 8px; border-radius: 10px; letter-spacing: 0.06em;
+}
+.header-row span {
+  font-family: var(--mono); font-size: 12px; color: var(--text-muted);
+}
+
+/* ─── Panels ────────────────────────────── */
+.left-panel, .right-panel {
+  display: flex; flex-direction: column; gap: 9px;
+  overflow-y: auto;
+}
+.left-panel::-webkit-scrollbar, .right-panel::-webkit-scrollbar { width: 5px; }
+.left-panel::-webkit-scrollbar-thumb, .right-panel::-webkit-scrollbar-thumb {
+  background: var(--border); border-radius: 3px;
+}
+
+/* ─── Section Cards ─────────────────────── */
+.card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 13px 15px;
+}
+.card h2 {
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.08em; color: var(--text-muted);
+  margin-bottom: 11px; display: flex; align-items: center; gap: 7px;
+}
+.card h2 .badge {
+  font-size: 9px; font-weight: 600;
+  background: var(--teal-dim); color: var(--teal);
+  padding: 2px 7px; border-radius: 8px; letter-spacing: 0.05em;
+}
+
+/* ─── Form Fields ───────────────────────── */
+.field {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 9px; gap: 10px;
+}
+.field:last-child { margin-bottom: 0; }
+.field label {
+  font-size: 12.5px; font-weight: 500; color: var(--text);
+  flex: 1; min-width: 0;
+}
+
+/* ─── Inputs ────────────────────────────── */
+.field input[type="number"] {
+  width: 110px; min-width: 110px;
+  background: var(--surface2); border: 1px solid var(--border);
+  color: var(--text); font-family: var(--mono); font-size: 13px;
+  padding: 8px 28px 8px 10px; border-radius: var(--radius-sm);
+  text-align: right; -moz-appearance: textfield;
+}
+.field input[type="number"]::-webkit-outer-spin-button,
+.field input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.field input[type="number"]:focus {
+  outline: none; border-color: var(--teal); box-shadow: 0 0 0 2px rgba(34,179,139,0.15);
+}
+.field input[readonly] { opacity: 0.65; cursor: default; }
+.field select {
+  width: 110px; min-width: 110px;
+  background: var(--surface2); border: 1px solid var(--border);
+  color: var(--text); font-family: var(--sans); font-size: 12.5px;
+  padding: 8px 6px; border-radius: var(--radius-sm); cursor: pointer;
+}
+.field select:focus {
+  outline: none; border-color: var(--teal); box-shadow: 0 0 0 2px rgba(34,179,139,0.15);
+}
+
+/* ─── Number Spinner ────────────────────── */
+.num-wrap { position: relative; display: inline-flex; }
+.num-wrap .spin {
+  position: absolute; top: 1px; right: 1px; bottom: 1px;
+  width: 20px; display: flex; flex-direction: column;
+  border-left: 1px solid var(--border);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0; overflow: hidden;
+}
+.num-wrap .spin button {
+  flex: 1 1 50%; display: flex; align-items: center; justify-content: center;
+  background: var(--surface2); border: none; color: var(--text-muted);
+  cursor: pointer; padding: 0; line-height: 0;
+  transition: color 0.12s ease, background 0.12s ease;
+}
+.num-wrap .spin button.up { border-bottom: 1px solid var(--border); }
+.num-wrap .spin button:hover { color: var(--teal); background: var(--teal-dim); }
+.num-wrap .spin button:active { color: var(--bg); background: var(--teal); }
+.num-wrap .spin svg { display: block; width: 9px; height: 6px; }
+
+/* ─── Toggle (Long/Short) ───────────────── */
+.toggle { display: flex; border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; }
+.toggle button {
+  flex: 1; padding: 7px 14px; background: var(--surface2); color: var(--text-muted);
+  border: none; font-family: var(--sans); font-size: 12px; font-weight: 600;
+  cursor: pointer; transition: all 0.14s ease;
+}
+.toggle button.active.long { background: var(--teal-dim); color: var(--teal); }
+.toggle button.active.short { background: var(--rose-dim); color: var(--rose); }
+.toggle button.active.maker { background: var(--teal-dim); color: var(--teal); }
+.toggle button.active.taker { background: var(--gold-dim); color: var(--gold); }
+
+/* ─── Mode Tabs ─────────────────────────── */
+.mode-tabs {
+  display: flex; border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden;
+}
+.mode-tabs button {
+  flex: 1; padding: 8px 6px; background: var(--surface2); color: var(--text-muted);
+  border: none; font-family: var(--sans); font-size: 11px; font-weight: 600;
+  cursor: pointer; transition: all 0.14s ease; letter-spacing: 0.03em;
+}
+.mode-tabs button:not(:last-child) { border-right: 1px solid var(--border); }
+.mode-tabs button.active { background: var(--teal-dim); color: var(--teal); }
+.mode-tabs button:hover:not(.active) { background: var(--surface); color: var(--text); }
+
+/* ─── Preset Row ────────────────────────── */
+.preset-row { display: flex; gap: 5px; align-items: center; }
+.preset-row select {
+  flex: 1; background: var(--surface2); border: 1px solid var(--border);
+  color: var(--text); font-family: var(--sans); font-size: 12px;
+  padding: 6px 8px; border-radius: var(--radius-sm);
+}
+.preset-btn {
+  background: var(--surface2); border: 1px solid var(--border); color: var(--text-muted);
+  padding: 6px 9px; border-radius: var(--radius-sm); cursor: pointer; font-size: 12px;
+  font-family: var(--sans); transition: all 0.12s; line-height: 1;
+}
+.preset-btn:hover { border-color: var(--teal); color: var(--teal); }
+.preset-btn.danger:hover { border-color: var(--rose); color: var(--rose); }
+
+/* ─── Helper Hint ───────────────────────── */
+.hint { font-size: 11px; color: var(--text-muted); margin-top: 5px; line-height: 1.5; }
+
+/* ─── Multi-TP ──────────────────────────── */
+.tp-list { margin-top: 6px; }
+.tp-entry {
+  display: flex; align-items: center; gap: 7px; margin-bottom: 5px;
+  padding: 6px 9px; background: var(--surface2); border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+.tp-entry .tp-label {
+  font-size: 11px; color: var(--text-muted); font-family: var(--mono);
+  font-weight: 600; min-width: 20px;
+}
+.tp-entry input[type="number"] {
+  width: 62px; min-width: 0; background: var(--surface); border: 1px solid var(--border);
+  color: var(--text); font-family: var(--mono); font-size: 12px;
+  padding: 5px 6px; border-radius: var(--radius-sm); text-align: right;
+}
+.tp-entry input[type="number"]:focus { outline: none; border-color: var(--gold); }
+.tp-entry input[type="range"] { flex: 1; accent-color: var(--gold); height: 4px; }
+.tp-entry .tp-remove {
+  background: none; border: none; color: var(--text-muted); cursor: pointer;
+  font-size: 15px; padding: 0 3px; transition: color 0.12s;
+}
+.tp-entry .tp-remove:hover { color: var(--rose); }
+.tp-add-btn {
+  display: flex; align-items: center; gap: 5px; background: var(--surface2);
+  border: 1px dashed var(--border); color: var(--text-muted);
+  font-family: var(--sans); font-size: 11.5px; font-weight: 600;
+  cursor: pointer; padding: 8px 10px; border-radius: var(--radius-sm);
+  width: 100%; justify-content: center; margin-top: 4px;
+  transition: all 0.12s;
+}
+.tp-add-btn:hover { border-color: var(--teal); color: var(--teal); background: var(--teal-dim); }
+.tp-summary {
+  display: flex; justify-content: space-between;
+  font-size: 11px; color: var(--text-muted); margin-top: 4px;
+}
+
+/* ─── Collapsible ───────────────────────── */
+.collapsible-header {
+  display: flex; justify-content: space-between; align-items: center;
+  cursor: pointer; user-select: none;
+}
+.collapsible-header h2 { margin-bottom: 0; }
+.collapsible-arrow {
+  font-size: 10px; color: var(--text-muted); transition: transform 0.18s;
+}
+.collapsible.open .collapsible-arrow { transform: rotate(180deg); }
+.collapsible-body { margin-top: 10px; }
+.collapsible:not(.open) .collapsible-body { display: none; }
+
+/* ─── Results Grid (3 columns) ─────────── */
+.results-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 9px;
+}
+
+/* ─── Results Rows ──────────────────────── */
+.out-row {
+  display: flex; align-items: baseline; justify-content: space-between;
+  padding: 5px 0;
+}
+.out-row .k { font-size: 12px; color: var(--text-muted); font-weight: 500; }
+.out-row .v {
+  font-family: var(--mono); font-size: 13.5px; color: var(--text); font-weight: 600;
+}
+.out-row .v.teal { color: var(--teal); }
+.out-row .v.gold { color: var(--gold); }
+.out-row .v.rose { color: var(--rose); }
+
+/* ─── Section labels in results ─────────── */
+.out-section { margin-top: 7px; padding-top: 5px; border-top: 1px solid var(--border); }
+.out-section .section-label {
+  font-size: 9.5px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 4px;
+}
+
+/* ─── TP output tags ────────────────────── */
+.tp-output-list { display: flex; flex-wrap: wrap; gap: 5px; padding: 4px 0; }
+.tp-output-tag {
+  font-family: var(--mono); font-size: 11px; font-weight: 500;
+  padding: 4px 8px; border-radius: var(--radius-sm);
+  background: var(--gold-dim); color: var(--gold); border: 1px solid rgba(212,170,44,0.2);
+}
+
+/* ─── Status Banner ─────────────────────── */
+.banner {
+  margin-top: 4px; padding: 9px 13px; border-radius: var(--radius-sm);
+  font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 7px;
+}
+.banner.safe { background: var(--teal-dim); color: var(--teal); border: 1px solid rgba(34,179,139,0.25); }
+.banner.warn { background: var(--rose-dim); color: var(--rose); border: 1px solid rgba(224,83,98,0.25); }
+.banner.info { background: #162438; color: #5ba4ea; border: 1px solid rgba(91,164,234,0.25); }
+
+/* ─── Section Divider ───────────────────── */
+.section-divider { border: none; border-top: 1px solid var(--border); margin: 6px 0; }
+
+/* ─── Disclaimer ────────────────────────── */
+.disclaimer {
+  font-size: 10.5px; font-weight: 500; color: var(--text-muted); line-height: 1.5;
+  margin-top: auto; padding-top: 7px; border-top: 1px solid var(--border);
+}
+
+/* ─── Custom Modal ───────────────────────── */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.65);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1000; opacity: 0; visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+.modal-overlay.open { opacity: 1; visibility: visible; }
+.modal {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 22px 24px 18px;
+  min-width: 340px; max-width: 420px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+.modal h3 {
+  font-size: 13px; font-weight: 600; color: var(--text);
+  margin-bottom: 8px;
+}
+.modal p {
+  font-size: 12px; color: var(--text-muted); line-height: 1.5;
+  margin-bottom: 18px;
+}
+.modal-actions {
+  display: flex; justify-content: flex-end; gap: 8px;
+}
+.modal-actions button {
+  padding: 7px 18px; border-radius: var(--radius-sm);
+  font-family: var(--sans); font-size: 12px; font-weight: 600;
+  cursor: pointer; border: 1px solid var(--border);
+  transition: all 0.12s; background: var(--surface2); color: var(--text-muted);
+}
+.modal-actions button:hover {
+  color: var(--text); border-color: var(--text-muted);
+}
+.modal-actions button.primary {
+  background: var(--rose-dim); color: var(--rose);
+  border-color: rgba(224,83,98,0.25);
+}
+.modal-actions button.primary:hover {
+  background: var(--rose); color: #fff; border-color: var(--rose);
+}
+.modal-actions button.cancel:hover {
+  color: var(--teal); border-color: var(--teal);
+}
+
+/* ─── Responsive ────────────────────────── */
+@media (max-width: 860px) {
+  .app { grid-template-columns: 1fr; min-width: 0; overflow-y: auto; }
+  .left-panel, .right-panel { overflow-y: visible; }
+  html, body { overflow: auto; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── Custom Modal ──────────────────────── -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h3 id="modalTitle">Confirm</h3>
+    <p id="modalMessage">Are you sure?</p>
+    <div class="modal-actions">
+      <button class="cancel" id="modalCancel">Cancel</button>
+      <button class="primary" id="modalConfirm">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<div class="app">
+
+  <!-- ═══ HEADER ═══ -->
+  <div class="header-row">
+    <h1>Position Calculator <span class="badge">OKX</span></h1>
+    <span id="clock"></span>
+  </div>
+
+  <!-- ═══ LEFT PANEL — Inputs ═══ -->
+  <div class="left-panel">
+
+    <!-- Mode Tabs -->
+    <div class="mode-tabs">
+      <button class="active" data-mode="risk-constrained">Risk-Based</button>
+      <button data-mode="sl-constrained">SL-Based</button>
+      <button data-mode="size-constrained">Size-Based</button>
+    </div>
+
+    <!-- Presets -->
+    <div class="card">
+      <h2>Presets</h2>
+      <div class="preset-row">
+        <select id="presetSelect"></select>
+        <button class="preset-btn" id="savePresetBtn" title="Save current as preset">Save</button>
+        <button class="preset-btn danger" id="delPresetBtn" title="Delete selected">Del</button>
+        <button class="preset-btn danger" id="resetPresetsBtn" title="Reset to factory defaults">Rst</button>
+      </div>
+    </div>
+
+    <!-- Contract -->
+    <div class="card">
+      <h2>Trading Instrument</h2>
+      <div class="field">
+        <label for="contractSelect">Contract</label>
+        <select id="contractSelect"></select>
+      </div>
+    </div>
+
+    <!-- Account & Risk -->
+    <div class="card">
+      <h2>Account & Risk Parameters</h2>
+      <div class="field">
+        <label for="capital">Account Capital ($)</label>
+        <div class="num-wrap">
+          <input type="number" id="capital" value="100" step="1" min="1">
+          <div class="spin">
+            <button class="up" onclick="UICtrl.stepInput('capital',1)"><svg viewBox="0 0 8 5"><path d="M0 5 L4 0 L8 5 Z" fill="currentColor"/></svg></button>
+            <button class="down" onclick="UICtrl.stepInput('capital',-1)"><svg viewBox="0 0 8 5"><path d="M0 0 L4 5 L8 0 Z" fill="currentColor"/></svg></button>
+          </div>
+        </div>
+      </div>
+      <div class="field">
+        <label for="riskPct">Risk per Trade (%)</label>
+        <div class="num-wrap">
+          <input type="number" id="riskPct" value="1" step="0.1" min="0.01">
+          <div class="spin">
+            <button class="up" onclick="UICtrl.stepInput('riskPct',1)"><svg viewBox="0 0 8 5"><path d="M0 5 L4 0 L8 5 Z" fill="currentColor"/></svg></button>
+            <button class="down" onclick="UICtrl.stepInput('riskPct',-1)"><svg viewBox="0 0 8 5"><path d="M0 0 L4 5 L8 0 Z" fill="currentColor"/></svg></button>
+          </div>
+        </div>
+      </div>
+      <p class="hint">Maximum dollar loss you're willing to accept on this trade. Fees are deducted from this budget first.</p>
+    </div>
+
+    <!-- SL Override (sl-constrained mode) -->
+    <div class="card" id="cardSLOverride" style="display:none">
+      <h2>Stop-Loss Distance Override</h2>
+      <div class="field">
+        <label for="slDistOverride">SL Distance (%)</label>
+        <div class="num-wrap">
+          <input type="number" id="slDistOverride" value="1" step="0.01" min="0.01">
+          <div class="spin">
+            <button class="up" onclick="UICtrl.stepInput('slDistOverride',1)"><svg viewBox="0 0 8 5"><path d="M0 5 L4 0 L8 5 Z" fill="currentColor"/></svg></button>
+            <button class="down" onclick="UICtrl.stepInput('slDistOverride',-1)"><svg viewBox="0 0 8 5"><path d="M0 0 L4 5 L8 0 Z" fill="currentColor"/></svg></button>
+          </div>
+        </div>
+      </div>
+      <p class="hint">Define your SL distance as a percentage of entry price. The implied risk is calculated from this value.</p>
+    </div>
+
+    <!-- Size Override (size-constrained mode) -->
+    <div class="card" id="cardSizeOverride" style="display:none">
+      <h2>Position Size Override</h2>
+      <div class="field">
+        <label for="sizeOverride">Position Size (units)</label>
+        <div class="num-wrap">
+          <input type="number" id="sizeOverride" value="0.1" step="0.01" min="0.001">
+          <div class="spin">
+            <button class="up" onclick="UICtrl.stepInput('sizeOverride',1)"><svg viewBox="0 0 8 5"><path d="M0 5 L4 0 L8 5 Z" fill="currentColor"/></svg></button>
+            <button class="down" onclick="UICtrl.stepInput('sizeOverride',-1)"><svg viewBox="0 0 8 5"><path d="M0 0 L4 5 L8 0 Z" fill="currentColor"/></svg></button>
+          </div>
+        </div>
+      </div>
+      <p class="hint">Specify exact position size in contract units. Leverage and risk are derived from this.</p>
+    </div>
+
+    <!-- Trade Setup -->
+    <div class="card">
+      <h2>Trade Setup</h2>
+      <div class="field">
+        <label>Direction</label>
+        <div class="toggle">
+          <button id="btnLong" class="active long" onclick="UICtrl.setDirection('long')">Long</button>
+          <button id="btnShort" class="short" onclick="UICtrl.setDirection('short')">Short</button>
+        </div>
+      </div>
+      <div class="field">
+        <label for="entry">Entry Price</label>
+        <input type="number" id="entry" value="64543.4" step="0.1" min="0.01" style="width:140px">
+      </div>
+      <div class="field">
+        <label for="leverage">Leverage</label>
+        <div class="num-wrap">
+          <input type="number" id="leverage" value="1" step="0.5" min="0.01">
+          <div class="spin">
+            <button class="up" onclick="UICtrl.stepInput('leverage',1)"><svg viewBox="0 0 8 5"><path d="M0 5 L4 0 L8 5 Z" fill="currentColor"/></svg></button>
+            <button class="down" onclick="UICtrl.stepInput('leverage',-1)"><svg viewBox="0 0 8 5"><path d="M0 0 L4 5 L8 0 Z" fill="currentColor"/></svg></button>
+          </div>
+        </div>
+      </div>
+      <div class="field">
+        <label for="rr">Reward : Risk</label>
+        <div class="num-wrap">
+          <input type="number" id="rr" value="3" step="0.5" min="0.5">
+          <div class="spin">
+            <button class="up" onclick="UICtrl.stepInput('rr',1)"><svg viewBox="0 0 8 5"><path d="M0 5 L4 0 L8 5 Z" fill="currentColor"/></svg></button>
+            <button class="down" onclick="UICtrl.stepInput('rr',-1)"><svg viewBox="0 0 8 5"><path d="M0 0 L4 5 L8 0 Z" fill="currentColor"/></svg></button>
+          </div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Open Fee</label>
+        <div class="toggle" id="toggleOpenFee">
+          <button class="active maker" data-rate="0.02" onclick="UICtrl.setFeeType('open','maker')">Maker 0.02%</button>
+          <button class="taker" data-rate="0.05" onclick="UICtrl.setFeeType('open','taker')">Taker 0.05%</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>Close Fee</label>
+        <div class="toggle" id="toggleCloseFee">
+          <button class="maker" data-rate="0.02" onclick="UICtrl.setFeeType('close','maker')">Maker 0.02%</button>
+          <button class="active taker" data-rate="0.05" onclick="UICtrl.setFeeType('close','taker')">Taker 0.05%</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>Round-Trip Fee</label>
+        <span class="v" id="totalFeeDisplay" style="font-family:var(--mono);font-size:13px;color:var(--text)">0.10%</span>
+      </div>
+      <p class="hint">Maker = limit order (0.02%). Taker = market order (0.05%). Based on OKX standard futures rates.</p>
+    </div>
+
+    <!-- Multi-TP -->
+    <div class="card collapsible open">
+      <div class="collapsible-header">
+        <h2>Take-Profit Targets <span class="badge">Multi</span></h2>
+        <span class="collapsible-arrow">▲</span>
+      </div>
+      <div class="collapsible-body">
+        <div class="tp-list" id="tpList"></div>
+        <div class="tp-summary" id="tpSummary">Total: 100% &nbsp;·&nbsp; 1 target</div>
+        <button class="tp-add-btn" onclick="UICtrl.addTPLevel()">+ Add Take-Profit Target</button>
+      </div>
+    </div>
+
+  </div><!-- /left-panel -->
+
+  <!-- ═══ RIGHT PANEL — Results ═══ -->
+  <div class="right-panel">
+
+    <div class="results-grid">
+
+      <div class="card">
+        <h2>Risk Allocation</h2>
+        <div class="out-row"><span class="k">Risk Amount</span><span class="v rose" id="outRisk">—</span></div>
+        <div class="out-row" id="impliedRiskRow" style="display:none"><span class="k">Implied Risk %</span><span class="v rose" id="outImpliedRisk">—</span></div>
+        <div class="out-row"><span class="k">Fee Cost (round-trip)</span><span class="v" id="outFeeCost">—</span></div>
+        <div class="out-row"><span class="k">Price Risk Budget</span><span class="v" id="outBudget">—</span></div>
+      </div>
+
+      <div class="card">
+        <h2>Stop-Loss Details</h2>
+        <div class="out-row"><span class="k">SL Distance (%)</span><span class="v" id="outSlDist">—</span></div>
+        <div class="out-row"><span class="k">SL Distance ($)</span><span class="v" id="outSlDistDollar">—</span></div>
+        <div class="out-row"><span class="k">SL Price</span><span class="v rose" id="outSlPrice">—</span></div>
+        <div class="out-row"><span class="k">Net Loss if SL Hit</span><span class="v rose" id="outNetLoss">—</span></div>
+      </div>
+
+      <div class="card">
+        <h2>Take-Profit Details</h2>
+        <div class="out-row" id="singleTpRow"><span class="k">TP Price</span><span class="v gold" id="outTp">—</span></div>
+        <div class="out-row" id="avgTpRow" style="display:none"><span class="k">Avg TP Price</span><span class="v gold" id="outAvgTp">—</span></div>
+        <div class="out-row"><span class="k">TP Distance</span><span class="v" id="outTpDist">—</span></div>
+        <div class="out-row"><span class="k">Net Profit at TP</span><span class="v gold" id="outNetProfit">—</span></div>
+      </div>
+
+      <div class="card">
+        <h2>Position & Liquidation</h2>
+        <div class="out-row"><span class="k">Position Notional</span><span class="v teal" id="outNotional">—</span></div>
+        <div class="out-row"><span class="k">Position Size (units)</span><span class="v" id="outUnits">—</span></div>
+        <div class="out-row"><span class="k">Est. Liquidation Price</span><span class="v" id="outLiq">—</span></div>
+        <div class="out-row"><span class="k">Maintenance Margin</span><span class="v" id="outMMR">—</span></div>
+        <div class="out-row"><span class="k">Max Rec. Leverage</span><span class="v" id="outMaxLev">—</span></div>
+      </div>
+
+      <div class="card">
+        <h2>Funding Estimate</h2>
+        <div class="out-row"><span class="k">Est. Funding / 8h</span><span class="v" id="outFunding">—</span></div>
+      </div>
+
+      <div id="tpResultsSection" class="card" style="display:none">
+        <h2>Per-Target Breakdown</h2>
+        <div class="tp-output-list" id="tpResultsList"></div>
+      </div>
+
+    </div>
+
+    <div class="banner" id="banner"></div>
+
+    <p class="disclaimer">Liquidation price is estimated using OKX tiered maintenance margin for isolated positions. Always verify the exact figure on the exchange before opening a trade. Funding payments are estimated at a 0.01% rate per 8-hour settlement.</p>
+
+  </div><!-- /right-panel -->
+
+</div>
+
+<script src="js/okx-data.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/calculator.js"></script>
+<script src="js/ui.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () { UICtrl.init(); });
+</script>
+</body>
+</html>

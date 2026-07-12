@@ -1,0 +1,574 @@
+:root {
+  --bg: #0a0d0c;
+  --panel: #111614;
+  --panel-2: #161d1a;
+  --line: #223129;
+  --text: #dfe8e3;
+  --text-dim: #7f9189;
+  --teal: #1f9d7c;
+  --teal-dim: #143a30;
+  --gold: #c9a227;
+  --gold-dim: #2a2310;
+  --rose: #d1495b;
+  --rose-dim: #3a1820;
+  --blue: #4a90d9;
+  --blue-dim: #162438;
+  --mono: ui-monospace, "SF Mono", "JetBrains Mono", "Consolas", "IBM Plex Mono", monospace;
+  --sans: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0; padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  min-height: 100vh;
+}
+
+.wrap {
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 20px 16px 80px;
+}
+
+/* ── Header ────────────────────────────── */
+header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 14px;
+  margin-bottom: 16px;
+}
+
+header h1 {
+  font-size: 15px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text);
+  margin: 0;
+  font-weight: 600;
+}
+
+header span {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+/* ── Mode Tabs ─────────────────────────── */
+.mode-tabs {
+  display: flex;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.mode-tabs button {
+  flex: 1;
+  padding: 9px 6px;
+  background: var(--panel-2);
+  color: var(--text-dim);
+  border: none;
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  letter-spacing: 0.03em;
+}
+
+.mode-tabs button:not(:last-child) {
+  border-right: 1px solid var(--line);
+}
+
+.mode-tabs button.active {
+  background: var(--teal-dim);
+  color: var(--teal);
+}
+
+.mode-tabs button:hover:not(.active) {
+  background: var(--panel);
+  color: var(--text);
+}
+
+/* ── Cards ─────────────────────────────── */
+.card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 16px;
+  margin-bottom: 14px;
+}
+
+.card h2 {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+  margin: 0 0 14px 0;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.card h2 .badge {
+  font-size: 9px;
+  background: var(--teal-dim);
+  color: var(--teal);
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+
+/* ── Fields ────────────────────────────── */
+.field {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  gap: 10px;
+}
+
+.field:last-child { margin-bottom: 0; }
+
+.field label {
+  font-size: 13px;
+  color: var(--text);
+  flex: 1;
+  min-width: 0;
+}
+
+.field input[type="number"] {
+  width: 130px;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 14px;
+  padding: 7px 22px 7px 9px;
+  border-radius: 4px;
+  text-align: right;
+  -moz-appearance: textfield;
+}
+
+.field input[type="number"]::-webkit-outer-spin-button,
+.field input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.field input[type="number"]:focus {
+  outline: none;
+  border-color: var(--teal);
+}
+
+.field input[readonly] {
+  opacity: 0.7;
+  cursor: default;
+}
+
+.field select {
+  width: 130px;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 13px;
+  padding: 6px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.field select:focus {
+  outline: none;
+  border-color: var(--teal);
+}
+
+/* ── Number Spinner ────────────────────── */
+.num-wrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.num-wrap .spin {
+  position: absolute;
+  top: 1px; right: 1px; bottom: 1px;
+  width: 19px;
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid var(--line);
+  border-radius: 0 3px 3px 0;
+  overflow: hidden;
+}
+
+.num-wrap .spin button {
+  flex: 1 1 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--panel-2);
+  border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  padding: 0;
+  line-height: 0;
+  transition: color 0.12s ease, background 0.12s ease;
+}
+
+.num-wrap .spin button.up {
+  border-bottom: 1px solid var(--line);
+}
+
+.num-wrap .spin button:hover {
+  color: var(--teal);
+  background: var(--teal-dim);
+}
+
+.num-wrap .spin button:active {
+  color: var(--bg);
+  background: var(--teal);
+}
+
+.num-wrap .spin svg { display: block; }
+
+/* ── Toggle ────────────────────────────── */
+.toggle {
+  display: flex;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.toggle button {
+  flex: 1;
+  padding: 7px 14px;
+  background: var(--panel-2);
+  color: var(--text-dim);
+  border: none;
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.toggle button.active.long {
+  background: var(--teal-dim);
+  color: var(--teal);
+}
+
+.toggle button.active.short {
+  background: var(--rose-dim);
+  color: var(--rose);
+}
+
+/* ── Multi-TP ──────────────────────────── */
+.tp-list {
+  margin-top: 8px;
+}
+
+.tp-entry {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  padding: 8px 10px;
+  background: var(--panel-2);
+  border-radius: 4px;
+  border: 1px solid var(--line);
+}
+
+.tp-entry .tp-label {
+  font-size: 11px;
+  color: var(--text-dim);
+  font-family: var(--mono);
+  min-width: 20px;
+}
+
+.tp-entry input[type="number"] {
+  width: 90px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 13px;
+  padding: 5px 8px;
+  border-radius: 3px;
+  text-align: right;
+}
+
+.tp-entry input[type="number"]:focus {
+  outline: none;
+  border-color: var(--gold);
+}
+
+.tp-entry input[type="range"] {
+  flex: 1;
+  accent-color: var(--gold);
+  height: 4px;
+}
+
+.tp-entry .tp-remove {
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: 14px;
+  padding: 0 4px;
+  transition: color 0.12s;
+}
+
+.tp-entry .tp-remove:hover {
+  color: var(--rose);
+}
+
+.tp-add-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--panel-2);
+  border: 1px dashed var(--line);
+  color: var(--text-dim);
+  font-family: var(--sans);
+  font-size: 12px;
+  cursor: pointer;
+  padding: 7px 12px;
+  border-radius: 4px;
+  width: 100%;
+  justify-content: center;
+  transition: all 0.12s;
+}
+
+.tp-add-btn:hover {
+  border-color: var(--teal);
+  color: var(--teal);
+  background: var(--teal-dim);
+}
+
+.tp-summary {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-top: 6px;
+}
+
+/* ── Preset Row ────────────────────────── */
+.preset-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.preset-row select {
+  flex: 1;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 13px;
+  padding: 7px 8px;
+  border-radius: 4px;
+}
+
+.preset-btn {
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  color: var(--text-dim);
+  padding: 7px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  font-family: var(--sans);
+  transition: all 0.12s;
+}
+
+.preset-btn:hover {
+  border-color: var(--teal);
+  color: var(--teal);
+}
+
+.preset-btn.danger:hover {
+  border-color: var(--rose);
+  color: var(--rose);
+}
+
+/* ── Hints ─────────────────────────────── */
+.hint {
+  font-size: 10.5px;
+  color: var(--text-dim);
+  margin-top: 4px;
+  line-height: 1.5;
+}
+
+.hint a {
+  color: var(--teal);
+  text-decoration: none;
+}
+
+.hint a:hover {
+  text-decoration: underline;
+}
+
+/* ── Output Rows ───────────────────────── */
+.out-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.out-row:last-child { border-bottom: none; }
+
+.out-row .k {
+  font-size: 12.5px;
+  color: var(--text-dim);
+}
+
+.out-row .v {
+  font-family: var(--mono);
+  font-size: 14px;
+  color: var(--text);
+  font-weight: 600;
+}
+
+.out-row .v.teal { color: var(--teal); }
+.out-row .v.gold { color: var(--gold); }
+.out-row .v.rose { color: var(--rose); }
+
+.out-section {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+}
+
+.out-section .section-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+/* ── TP breakdown in output ────────────── */
+.tp-output-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.tp-output-tag {
+  font-family: var(--mono);
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 3px;
+  background: var(--gold-dim);
+  color: var(--gold);
+  border: 1px solid #c9a22733;
+}
+
+/* ── Banners ───────────────────────────── */
+.banner {
+  margin-top: 4px;
+  padding: 10px 12px;
+  border-radius: 5px;
+  font-size: 12.5px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.banner.safe {
+  background: var(--teal-dim);
+  color: var(--teal);
+  border: 1px solid #1f9d7c44;
+}
+
+.banner.warn {
+  background: var(--rose-dim);
+  color: var(--rose);
+  border: 1px solid #d1495b44;
+}
+
+.banner.info {
+  background: var(--blue-dim);
+  color: var(--blue);
+  border: 1px solid #4a90d944;
+}
+
+/* ── Collapsible ───────────────────────── */
+.collapsible-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+}
+
+.collapsible-header h2 {
+  margin-bottom: 0;
+}
+
+.collapsible-arrow {
+  font-size: 10px;
+  color: var(--text-dim);
+  transition: transform 0.2s;
+}
+
+.collapsible.open .collapsible-arrow {
+  transform: rotate(180deg);
+}
+
+.collapsible-body {
+  margin-top: 14px;
+}
+
+.collapsible:not(.open) .collapsible-body {
+  display: none;
+}
+
+/* ── Footer ────────────────────────────── */
+footer {
+  margin-top: 18px;
+  font-size: 11px;
+  color: var(--text-dim);
+  line-height: 1.6;
+  border-top: 1px solid var(--line);
+  padding-top: 14px;
+}
+
+footer p {
+  margin: 4px 0;
+}
+
+/* ── Section divider ───────────────────── */
+.section-divider {
+  border: none;
+  border-top: 1px solid var(--line);
+  margin: 14px 0;
+}
+
+/* ── Responsive ────────────────────────── */
+@media (max-width: 420px) {
+  .wrap { padding: 12px 10px 60px; }
+  .field { flex-direction: column; align-items: flex-start; gap: 4px; }
+  .field input[type="number"],
+  .field select { width: 100%; }
+  .num-wrap { width: 100%; }
+  .num-wrap input { width: 100% !important; }
+}
+
+/* ── Transition helpers ────────────────── */
+.fade-enter { opacity: 0; transform: translateY(-4px); }
+.fade-enter-active { opacity: 1; transform: translateY(0); transition: all 0.2s ease; }

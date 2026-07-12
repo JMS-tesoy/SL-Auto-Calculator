@@ -1,0 +1,14 @@
+# ── Node ──
+node_modules/
+
+# ── Rust / Tauri ──
+src-tauri/target/
+src-tauri/gen/schemas/
+
+# ── IDE ──
+.vscode/
+.idea/
+
+# ── OS ──
+.DS_Store
+Thumbs.db
